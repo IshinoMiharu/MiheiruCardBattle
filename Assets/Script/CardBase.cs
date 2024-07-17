@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 
 
-public class CardBase : MonoBehaviour, IDragHandler, IPointerUpHandler//, IPointerDownHandler
+public class CardBase : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
     // Start is called before the first frame update
     [Header("キャラ名")]
@@ -48,8 +48,8 @@ public class CardBase : MonoBehaviour, IDragHandler, IPointerUpHandler//, IPoint
     private List<Card> cards = new List<Card>();
     Transform _originDeck = default;
     public static GameObject selectedObject;
-
-    
+    Animator C_anim;
+    bool Right = false;
 
     public enum Monster
     {
@@ -104,7 +104,8 @@ public class CardBase : MonoBehaviour, IDragHandler, IPointerUpHandler//, IPoint
         CardPoint[6] =  HP;
         CardPoint[7] = Cardnumber;
         _rectTransform = GetComponent<RectTransform>();
-        
+        C_anim = GetComponent<Animator>();
+
     }
 
 
@@ -125,14 +126,16 @@ public class CardBase : MonoBehaviour, IDragHandler, IPointerUpHandler//, IPoint
 
     public void OnClickCurd()
     {
-         var Title = GameObject.Find("Title");
-        CardTitle = Title.GetComponent<Text>();
-        var Curd = GameObject.Find("CurdText");
-        text = Curd.GetComponent<Text>();         
-        Debug.Log("Curdtouch");
-        CardTitle.text = CardText[0];
-        text.text = "コスト：" + CardPoint[0] + "\n攻撃力：" + (CardPoint[3]+CardPoint[4]) + "\n体力　：" + CardPoint[5] + "\n効果　：" + CardText[1] + "\n豆知識：" + CardText[2];
-        selectedObject = this.gameObject;
+        if (Input.GetMouseButtonUp(1)&&!Right)
+        {
+            C_anim.SetBool("Right", true);
+            Right=true;
+        }
+        else if (Input.GetMouseButtonUp(1) && Right)
+        {
+            C_anim.SetBool("Right", false);
+            Right =false;
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -140,14 +143,26 @@ public class CardBase : MonoBehaviour, IDragHandler, IPointerUpHandler//, IPoint
         Debug.Log(eventData);
         _rectTransform.position = eventData.position;
         this.transform.SetAsLastSibling();
+        C_anim.SetBool("Drug", true);    
+        
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         Debug.Log(eventData + "に落とす");
-
+        C_anim.SetBool("Drug", false);
     }
 
-   
-
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        var Title = GameObject.Find("Title");
+        CardTitle = Title.GetComponent<Text>();
+        var Curd = GameObject.Find("CurdText");
+        text = Curd.GetComponent<Text>();
+        Debug.Log("Curdtouch");
+        CardTitle.text = CardText[0];
+        text.text = "コスト：" + CardPoint[0] + "\n攻撃力：" + (CardPoint[3] + CardPoint[4]) + "\n体力　：" + CardPoint[5] + "\n効果　：" + CardText[1] + "\n豆知識：" + CardText[2];
+        selectedObject = this.gameObject;
+        
+    }
 }
